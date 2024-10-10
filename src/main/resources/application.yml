@@ -1,19 +1,32 @@
+server:
+  port: 8080
+logging:
+  file:
+    name: logs/application.log
+  level:
+    root: DEBUG
+    org.springframework: INFO
+    org.springframework.web: DEBUG
+    Linktic.Test.ApiGateway: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 spring:
-  application:
-    name: ApiGateway
-
   cloud:
     gateway:
       routes:
-        - id: product_service
-          uri: http://localhost:8081
+        # Configuración del Product Service
+        - id: product-service
+          uri: http://localhost:8090
           predicates:
-            - Path=/products/**
-        - id: order_service
-          uri: http://localhost:8082
-          predicates:
-            - Path=/orders/**
-        - id: auth_service
-          uri: http://localhost:8083
-          predicates:
-            - Path=/auth/**
+            - Path=/product-service/**
+          filters:
+            - RewritePath=/product-service/(?<segment>.*), /${segment}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: "always"
